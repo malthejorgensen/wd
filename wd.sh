@@ -22,8 +22,8 @@ NOC="\033[m"
 # check if config file exists
 if [[ ! -a $CONFIG ]]
 then
-  # if not: create config file
-  touch $CONFIG
+    # if not: create config file
+    touch $CONFIG
 fi
 
 ## load warp points
@@ -129,7 +129,7 @@ wd_print_msg()
 
 wd_print_usage()
 {
-		print "Usage: wd [add|-a|--add] [rm|-r|--remove] [ls|-l|--list] <point>"
+    print "Usage: wd [add|-a|--add] [rm|-r|--remove] [ls|-l|--list] <point>"
     print "\nCommands:"
     print "\t add \t Adds the current working directory to your warp points"
     print "\t add! \t Overwrites existing warp point"
@@ -148,10 +148,10 @@ args_result=$?
 # check if config file is writeable
 if [[ ! -w $CONFIG ]]
 then
-  wd_print_msg $RED "\'$CONFIG\' is not writeable. Exiting."
-  # do nothing => exit
-  # can't run `exit`, as this would exit the executing shell
-  # i.e. your terminal
+    wd_print_msg $RED "\'$CONFIG\' is not writeable. Exiting."
+    # do nothing => exit
+    # can't run `exit`, as this would exit the executing shell
+    # i.e. your terminal
 
 # check if no arguments were given
 elif [[ $args_result -ne 0 || $#* -eq 0 ]]
@@ -164,39 +164,40 @@ else
 
     for i
     do
-		    case "$i"
-		        in
-			      -a|--add|add)
+        case "$i"
+
+          in
+            -a|--add|add)
                 wd_add $2 false
-				        shift
+                shift
                 shift
                 break
                 ;;
             -a!|--add!|add!)
                 wd_add $2 true
-				        shift
+                shift
                 shift
                 break
                 ;;
-			      -r|--remove|rm)
-				        wd_remove $2
+            -r|--remove|rm)
+                wd_remove $2
                 shift
-				        shift
+                shift
                 break
                 ;;
-			      -l|--list|ls)
-				        wd_list_all
-				        shift
+            -l|--list|ls)
+                wd_list_all
+                shift
                 break
                 ;;
-			      -h|--help|help)
-				        wd_print_usage
-				        shift
+            -h|--help|help)
+                wd_print_usage
+                shift
                 break
                 ;;
-			      -s|--show|show)
-				        wd_show
-				        shift
+            -s|--show|show)
+                wd_show
+                shift
                 break
                 ;;
             *)
@@ -204,9 +205,9 @@ else
                 shift
                 break
                 ;;
-			      --)
-				        shift; break;;
-		    esac
+            --)
+                shift; break;;
+        esac
     done
 fi
 
