@@ -22,8 +22,8 @@ NOC="\033[m"
 # check if config file exists
 if [[ ! -a $CONFIG ]]
 then
-  # if not: create config file
-  touch $CONFIG
+    # if not: create config file
+    touch $CONFIG
 fi
 
 ## load warp points
@@ -64,16 +64,16 @@ wd_warp()
 
 wd_add()
 {
-    if [[ $1 =~ "^\.+$" ]]
+    if [[ $2 =~ "^\.+$" || $2 =~ "^\s*$" ]]
     then
-        wd_print_msg $RED "Illeagal warp point (see README)."
-    elif [[ ${points[$1]} == "" ]] || $2
+        wd_print_msg $RED "Illegal warp point (see README)."
+    elif [[ ${points[$2]} == "" ]] || $1
     then
-        wd_remove $1 > /dev/null
-        print "$1:$PWD" >> $CONFIG
+        wd_remove $2 > /dev/null
+        print "$2:$PWD" >> $CONFIG
         wd_print_msg $GREEN "Warp point added"
     else
-        wd_print_msg $YELLOW "Warp point '$1' alredy exists. Use 'add!' to overwrite."
+        wd_print_msg $YELLOW "Warp point '$2' already exists. Use 'add!' to overwrite."
     fi
 }
 
@@ -83,7 +83,9 @@ wd_remove()
     then
         if wd_tmp=`sed "/^$1:/d" $CONFIG`
         then
-            echo $wd_tmp > $CONFIG
+            # `>!` forces overwrite
+            # we need this if people use `setopt NO_CLOBBER`
+            echo $wd_tmp >! $CONFIG
             wd_print_msg $GREEN "Warp point removed"
         else
             wd_print_msg $RED "Warp point unsuccessfully removed. Sorry!"
@@ -142,58 +144,59 @@ wd_print_usage()
 
 # get opts
 args=`getopt -o a:r:lhs -l add:,remove:,list,help,show -- $*`
-
-# check if no arguments were given
-if [[ $? -ne 0 || $#* -eq 0 ]]
-then
-    wd_print_usage
+args_result=$?
 
 # check if config file is writeable
-elif [[ ! -w $CONFIG ]]
+if [[ ! -w $CONFIG ]]
 then
-    wd_print_msg $RED "\'$CONFIG\' is not writeable."
+    wd_print_msg $RED "\'$CONFIG\' is not writeable. Exiting."
     # do nothing => exit
     # can't run `exit`, as this would exit the executing shell
     # i.e. your terminal
+
+# check if no arguments were given
+elif [[ $args_result -ne 0 || $#* -eq 0 ]]
+then
+    wd_print_usage
+    # do nothing => exit
 
 else
     #set -- $args # WTF
 
     for i
     do
-		    case "$i"
-		        in
-			      -a|--add|add)
-                wd_add $2 false
-				        shift
+        case "$i" in
+            -a|--add|add)
                 shift
+                shift
+                wd_add false $2
                 break
                 ;;
             -a!|--add!|add!)
-                wd_add $2 true
-				        shift
+                shift
+                shift
+                wd_add true $2
+                break
+                ;;
+            -r|--remove|rm)
+                wd_remove $2
+                shift
                 shift
                 break
                 ;;
-			      -r|--remove|rm)
-				        wd_remove $2
+            -l|--list|ls)
+                wd_list_all
                 shift
-				        shift
                 break
                 ;;
-			      -l|--list|ls)
-				        wd_list_all
-				        shift
+            -h|--help|help)
+                wd_print_usage
+                shift
                 break
                 ;;
-			      -h|--help|help)
-				        wd_print_usage
-				        shift
-                break
-                ;;
-			      -s|--show|show)
-				        wd_show
-				        shift
+            -s|--show|show)
+                wd_show
+                shift
                 break
                 ;;
             *)
@@ -201,9 +204,9 @@ else
                 shift
                 break
                 ;;
-			      --)
-				        shift; break;;
-		    esac
+            --)
+                shift; break;;
+        esac
     done
 fi
 

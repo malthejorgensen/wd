@@ -6,4 +6,6 @@
 #
 # @github.com/mfaerevaag/wd
 
-alias wd='. $ZSH/plugins/wd/wd.sh'
+wd() {
+    source "$ZSH/plugins/wd/wd.sh"
+}
